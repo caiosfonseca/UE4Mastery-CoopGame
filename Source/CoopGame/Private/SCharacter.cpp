@@ -22,6 +22,16 @@ ASCharacter::ASCharacter()
 	CameraComp->SetupAttachment(SpringArmComp);
 }
 
+FVector ASCharacter::GetPawnViewLocation() const
+{
+	if(IsValid(CameraComp))
+	{
+		return CameraComp->GetComponentLocation();
+	}
+
+	return Super::GetPawnViewLocation();
+}
+
 // Called when the game starts or when spawned
 void ASCharacter::BeginPlay()
 {

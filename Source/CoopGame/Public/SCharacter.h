@@ -33,6 +33,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
 	USpringArmComponent* SpringArmComp;
 
+	virtual FVector GetPawnViewLocation() const override;
+
 
 protected:
 	// Called when the game starts or when spawned
