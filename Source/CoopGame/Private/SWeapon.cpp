@@ -55,7 +55,7 @@ void ASWeapon::Fire()
 		QueryParams.bTraceComplex = true;
 		
 		FHitResult Hit;
-		if (GetWorld()->LineTraceSingleByChannel(Hit, EyeLocation, TraceEnd, ECC_Visibility, QueryParams))
+		if (GetWorld()->LineTraceSingleByChannel(Hit, EyeLocation, TraceEnd, COLLISION_WEAPON, QueryParams))
 		{
 			//Blocking Hit, process damage
 			AActor* HitActor = Hit.GetActor();
