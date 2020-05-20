@@ -7,6 +7,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "GameFramework/PlayerController.h"
+#include "Camera/CameraShake.h"
+
 
 static int32 DebugWeaponDrawing = 0;
 FAutoConsoleVariableRef CVARDebugWeaponDrawing(
@@ -89,6 +92,16 @@ void ASWeapon::PlayFireEffects(FVector TracerEndPoint)
 		if(IsValid(TracerComp))
 		{
 			TracerComp->SetVectorParameter(TracerTargetName, TracerEndPoint);
+		}
+	}
+
+	APawn* MyOwner = Cast<APawn>(GetOwner());
+	if(IsValid(MyOwner))
+	{
+		APlayerController* PC = Cast<APlayerController>( MyOwner->GetController());
+		if(IsValid(PC))
+		{
+			PC->ClientPlayCameraShake(FireCamShake);
 		}
 	}
 }
