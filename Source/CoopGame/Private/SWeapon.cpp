@@ -9,6 +9,8 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Camera/CameraShake.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
+#include "CoopGame/CoopGame.h"
 
 
 static int32 DebugWeaponDrawing = 0;
@@ -48,6 +50,7 @@ void ASWeapon::Fire()
 
 		FCollisionQueryParams QueryParams;
 		QueryParams.AddIgnoredActor(MyOwner);
+		QueryParams.bReturnPhysicalMaterial = true;
 		QueryParams.AddIgnoredActor(this);
 		QueryParams.bTraceComplex = true;
 		
@@ -59,9 +62,24 @@ void ASWeapon::Fire()
 
 			UGameplayStatics::ApplyPointDamage(HitActor, 20.f, ShotDirection, Hit, MyOwner->GetInstigatorController(), this, DamageType );
 
-			if(IsValid(ImpactEffect))
+
+			EPhysicalSurface PhysSurface = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
+
+			UParticleSystem* SelectedEffect = nullptr;
+			switch(PhysSurface)
 			{
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());				
+			case SURFACE_FLESHDEFAULT:
+			case SURFACE_FLESHVULNERABLE:
+				SelectedEffect = FleshImpactEffect;
+				break;
+			default:
+				SelectedEffect = DefaultImpactEffect;
+				break;
+			}
+
+			if(IsValid(DefaultImpactEffect))
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedEffect, Hit.ImpactPoint, Hit.ImpactNormal.Rotation());				
 			}
 
 			TracerEndPoint = Hit.ImpactPoint;
