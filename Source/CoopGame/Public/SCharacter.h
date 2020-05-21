@@ -58,7 +58,9 @@ protected:
 
 	ASWeapon* CurrentWeapon;
 
-	void Fire();
+	void StartFire();
+	void StopFire();
+	void Reload();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
 	TSubclassOf<ASWeapon> StarterWeaponClass;

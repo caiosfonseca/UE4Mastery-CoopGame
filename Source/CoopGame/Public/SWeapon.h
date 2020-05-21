@@ -22,9 +22,28 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
     virtual void Fire();
-    		
+
+	FTimerHandle TimerHandle_TimeBetweenShots;
+	FTimerHandle TimerHandle_Reload;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+    virtual void StartFire();
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+    virtual void StopFire();
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+    virtual void Reload();
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+    virtual void OnReload();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+    int32 CurrentAmmo;
 
 protected:
+
+	virtual void BeginPlay() override;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USkeletalMeshComponent* MeshComp;
@@ -57,4 +76,20 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
     float BaseDamage;
+
+	float LastTimeFired;
+
+	/* RPM - Bullets per minute fired */
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	float RateOfFire;
+
+	float TimeBetweenShots;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+    int32 MaxAmmo;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	float ReloadTime;
+
+	bool bIsReloading;
 };

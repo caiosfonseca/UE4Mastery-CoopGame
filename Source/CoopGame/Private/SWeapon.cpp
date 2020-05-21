@@ -11,6 +11,7 @@
 #include "Camera/CameraShake.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "CoopGame/CoopGame.h"
+#include "TimerManager.h"
 
 
 static int32 DebugWeaponDrawing = 0;
@@ -30,6 +31,22 @@ ASWeapon::ASWeapon()
 	TracerTargetName = "Target";
 
 	BaseDamage = 20.f;
+
+	RateOfFire = 600;
+
+	ReloadTime = 2.5f;
+
+	MaxAmmo = 30;
+	CurrentAmmo = 30;
+
+	bIsReloading = false;
+}
+
+void ASWeapon::BeginPlay()
+{
+	Super::BeginPlay();
+
+	TimeBetweenShots = 60 / RateOfFire;
 }
 
 void ASWeapon::Fire()
@@ -39,6 +56,21 @@ void ASWeapon::Fire()
 	
 	if(IsValid(MyOwner))
 	{
+		if(bIsReloading)
+		{
+			StopFire();
+			return;
+		}
+		
+		if(!CurrentAmmo)
+		{
+			StopFire();
+			Reload();
+			return;
+		}
+
+		CurrentAmmo -= 1;
+		
 		FVector EyeLocation;
 		FRotator EyeRotation;
 		MyOwner->GetActorEyesViewPoint(EyeLocation, EyeRotation);
@@ -99,8 +131,54 @@ void ASWeapon::Fire()
 
 		PlayFireEffects(TracerEndPoint);
 		
+		LastTimeFired = GetWorld()->TimeSeconds;
 		
 	}
+}
+
+void ASWeapon::StartFire()
+{
+	if(bIsReloading)
+	{
+		return;
+	}
+	
+	if(CurrentAmmo)
+	{
+		float FirstDelay = FMath::Max(LastTimeFired + TimeBetweenShots - GetWorld()->TimeSeconds, 0.f);
+	
+		GetWorldTimerManager().SetTimer(TimerHandle_TimeBetweenShots, this, &ASWeapon::Fire, TimeBetweenShots, true, FirstDelay);
+	}
+	else
+	{
+		Reload();
+	}
+	
+	
+}
+
+void ASWeapon::StopFire()
+{
+	GetWorldTimerManager().ClearTimer(TimerHandle_TimeBetweenShots);
+}
+
+void ASWeapon::Reload()
+{
+	if(CurrentAmmo != MaxAmmo && !bIsReloading)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Reloading"));
+		bIsReloading = true;
+		GetWorldTimerManager().SetTimer(TimerHandle_Reload, this, &ASWeapon::OnReload, ReloadTime, false, ReloadTime);
+	}
+	
+}
+
+void ASWeapon::OnReload()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Reloaded"));
+	CurrentAmmo = MaxAmmo;
+	bIsReloading = false;
+	GetWorldTimerManager().ClearTimer(TimerHandle_Reload);
 }
 
 void ASWeapon::PlayFireEffects(FVector TracerEndPoint)
