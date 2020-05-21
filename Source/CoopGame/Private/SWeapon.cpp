@@ -39,6 +39,11 @@ ASWeapon::ASWeapon()
 	MaxAmmo = 30;
 	CurrentAmmo = 30;
 
+	PitchSpreadAngle = 1.25f;
+	YawSpreadAngle = 1.25f;
+
+	Recoil = 0.5f;
+
 	bIsReloading = false;
 }
 
@@ -76,10 +81,16 @@ void ASWeapon::Fire()
 		MyOwner->GetActorEyesViewPoint(EyeLocation, EyeRotation);
 
 		FVector ShotDirection = EyeRotation.Vector();
-		
-		FVector TraceEnd = EyeLocation + ShotDirection * 10000;
 
-		// Partile Target parameter
+		float RandomYaw = FMath::FRandRange(-YawSpreadAngle, YawSpreadAngle);
+		float RandomPitch = FMath::FRandRange(-PitchSpreadAngle, PitchSpreadAngle);
+
+		FRotator SpreadRot = FRotator(RandomPitch, RandomYaw, 0.f);
+		
+		FVector TraceEnd = SpreadRot.RotateVector(EyeLocation + ShotDirection * 10000);
+		
+
+		// Particle Target parameter
 		FVector TracerEndPoint = TraceEnd; 
 
 		FCollisionQueryParams QueryParams;
@@ -132,6 +143,8 @@ void ASWeapon::Fire()
 		PlayFireEffects(TracerEndPoint);
 		
 		LastTimeFired = GetWorld()->TimeSeconds;
+
+		Cast<APlayerController>(MyOwner->GetInstigatorController())->AddPitchInput(-Recoil);
 		
 	}
 }

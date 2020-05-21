@@ -92,4 +92,13 @@ protected:
 	float ReloadTime;
 
 	bool bIsReloading;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	float PitchSpreadAngle;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	float YawSpreadAngle;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+    float Recoil;
 };
