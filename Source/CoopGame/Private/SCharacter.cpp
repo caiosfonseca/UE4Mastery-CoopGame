@@ -33,6 +33,8 @@ ASCharacter::ASCharacter()
 	ZoomInterpSpeed = 20.f;
 
 	WeaponAttachSocketName = "WeaponSocket";
+
+	bDied = false;
 }
 
 FVector ASCharacter::GetPawnViewLocation() const
