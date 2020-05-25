@@ -11,6 +11,20 @@ class UDamageType;
 class UParticleSystem;
 class UCameraShake;
 
+USTRUCT()
+struct FHitScanTrace
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY()
+	TEnumAsByte<EPhysicalSurface> SurfaceType;
+	
+	UPROPERTY()
+	FVector_NetQuantize TraceTo;
+};
+
 UCLASS()
 class COOPGAME_API ASWeapon : public AActor
 {
@@ -22,6 +36,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
     virtual void Fire();
+
+	UFUNCTION(Server, Reliable, WithValidation, Category = "Weapon")
+    virtual void ServerFire();
 
 	FTimerHandle TimerHandle_TimeBetweenShots;
 	FTimerHandle TimerHandle_Reload;
@@ -49,6 +66,8 @@ protected:
 	USkeletalMeshComponent* MeshComp;
 
 	void PlayFireEffects(FVector TracerEndPoint);
+
+	void PlayImpactEfects(EPhysicalSurface SurfaceType, FVector ImpactPoint);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
 	TSubclassOf<UDamageType> DamageType;
@@ -84,6 +103,12 @@ protected:
 	float RateOfFire;
 
 	float TimeBetweenShots;
+
+	UPROPERTY(ReplicatedUsing=OnRep_HitScanTrace)
+	FHitScanTrace HitScanTrace;
+
+	UFUNCTION()
+	void OnRep_HitScanTrace();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
     int32 MaxAmmo;

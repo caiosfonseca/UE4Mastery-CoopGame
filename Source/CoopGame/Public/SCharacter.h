@@ -60,6 +60,7 @@ protected:
 	void BeginZoom();
 	void EndZoom();
 
+	UPROPERTY(Replicated)
 	ASWeapon* CurrentWeapon;
 
 	void StartFire();
