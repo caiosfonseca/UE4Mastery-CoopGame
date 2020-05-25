@@ -33,10 +33,13 @@ protected:
 
 	void Explode(AController* InstigatedBy);
 
-	UPROPERTY(BlueprintReadOnly, Category = "Explosion")
+	UPROPERTY(ReplicatedUsing=OnRep_Exploded, BlueprintReadOnly, Category = "Explosion")
     bool bExploded;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
+	UFUNCTION()
+	void OnRep_Exploded();
+
+	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
 	UParticleSystem* ExplosionEffect;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Mesh")
@@ -45,7 +48,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Mesh")
     UMaterialInterface* DefaultMaterial;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Mesh")
+	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "Mesh")
     UMaterialInterface* ExplodedMaterial;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Explosion")

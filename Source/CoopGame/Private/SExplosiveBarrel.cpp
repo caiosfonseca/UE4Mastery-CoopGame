@@ -8,6 +8,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "CoopGame/CoopGame.h"
 #include "PhysicsEngine/RadialForceComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 ASExplosiveBarrel::ASExplosiveBarrel()
@@ -29,7 +30,6 @@ ASExplosiveBarrel::ASExplosiveBarrel()
 	LaunchForce = 1000.f;
 	Damage = 40.f;
 	
-	
 	RadialForceComp = CreateDefaultSubobject<URadialForceComponent>(TEXT("RadialForceComp"));
 	RadialForceComp->SetupAttachment(RootComponent);
 	RadialForceComp->bIgnoreOwningActor = true;
@@ -40,6 +40,12 @@ ASExplosiveBarrel::ASExplosiveBarrel()
 	RadialForceComp->AddCollisionChannelToAffect(ECollisionChannel::ECC_PhysicsBody);
 
 	bExploded = false;
+
+	SetReplicates(true);
+	SetReplicateMovement(true);
+
+	NetUpdateFrequency = 66.f;
+	MinNetUpdateFrequency = 33.f;
 }
 
 void ASExplosiveBarrel::OnHealthChanged(USHealthComponent* OwningHealtComp, float Health, float HealthDelta,
@@ -49,10 +55,22 @@ void ASExplosiveBarrel::OnHealthChanged(USHealthComponent* OwningHealtComp, floa
 	{
 		bExploded = true;
 		Explode(InstigatedBy);
+		OnRep_Exploded();
 	}
 }
 
 void ASExplosiveBarrel::Explode(AController* InstigatedBy)
+{
+	MeshComp->AddImpulse(GetActorUpVector() * LaunchForce, NAME_None, true);
+
+	RadialForceComp->FireImpulse();
+
+	TArray<AActor*> IgnorableActors {this};
+	
+	UGameplayStatics::ApplyRadialDamage(GetWorld(), Damage, GetActorLocation(), ExplosionRadius, ExplosionDamageType, IgnorableActors, this, InstigatedBy );
+}
+
+void ASExplosiveBarrel::OnRep_Exploded()
 {
 	if(IsValid(ExplosionEffect))
 	{
@@ -63,14 +81,14 @@ void ASExplosiveBarrel::Explode(AController* InstigatedBy)
 	{
 		MeshComp->SetMaterial(0, ExplodedMaterial);
 	}
+}
 
-	
-	MeshComp->AddImpulse(GetActorUpVector() * LaunchForce, NAME_None, true);
+void ASExplosiveBarrel::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	RadialForceComp->FireImpulse();
-
-	TArray<AActor*> IgnorableActors {this};
-	
-	UGameplayStatics::ApplyRadialDamage(GetWorld(), Damage, GetActorLocation(), ExplosionRadius, ExplosionDamageType, IgnorableActors, this, InstigatedBy );
+	DOREPLIFETIME(ASExplosiveBarrel, bExploded);
+	DOREPLIFETIME(ASExplosiveBarrel, ExplosionEffect);
+	DOREPLIFETIME(ASExplosiveBarrel, ExplodedMaterial);
 }
 
