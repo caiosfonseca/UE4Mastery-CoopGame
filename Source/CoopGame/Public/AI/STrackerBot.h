@@ -9,6 +9,7 @@
 class UStaticMeshComponent;
 class USHealthComponent;
 class UParticleSystem;
+class USphereComponent;
 
 UCLASS()
 class COOPGAME_API ASTrackerBot : public APawn
@@ -22,15 +23,23 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	FTimerHandle TimerHandle_SelfDamage;
+
+	void DamageSelf();
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
 	UStaticMeshComponent* MeshComp;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
 	USHealthComponent* HealthComp;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
+	USphereComponent* SphereComp;
 
 	UFUNCTION()
 	void HandleTakeDamage(USHealthComponent* OwningHealtComp, float Health, float HealthDelta,
@@ -58,11 +67,12 @@ protected:
 
 	bool bExploded;
 
+	bool bStartedSelfDestruction;
+
 	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
 	float ExplosionRadius;
 
 	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
 	float ExplosionDamage;
-
 
 };
