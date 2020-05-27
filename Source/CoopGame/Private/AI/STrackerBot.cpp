@@ -10,6 +10,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/Actor.h"
+#include "Particles/ParticleSystem.h"
 #include "Components/SHealthComponent.h"
 
 // Sets default values
@@ -29,6 +31,9 @@ ASTrackerBot::ASTrackerBot()
 	bUseVelocityChange = false;
 	MovementForce = 1000.f;
 	RequiredDistanceToTarget = 100.f;
+	bExploded = false;
+	ExplosionDamage = 40.f;
+	ExplosionRadius = 200.f;
 
 }
 
@@ -73,9 +78,22 @@ void ASTrackerBot::HandleTakeDamage(USHealthComponent* OwningHealtComp, float He
 {
 	// Explode on Hitpoints == 0
 
-	// TODO: Pulse the material on hit
+	if(!IsValid(MatInst))
+	{
+		MatInst = MeshComp->CreateAndSetMaterialInstanceDynamicFromMaterial(0, MeshComp->GetMaterial(0));
+	}
+
+	if(IsValid(MatInst))
+	{
+		MatInst->SetScalarParameterValue("LastTimeDamageTaken", GetWorld()->TimeSeconds);
+	}
 
 	UE_LOG(LogTemp, Log, TEXT("health %s of %s"), *FString::SanitizeFloat(Health), *GetName());
+
+	if(Health <= 0.f)
+	{
+		SelfDestruct();
+	}
 }
 
 FVector ASTrackerBot::GetNextPathPoint()
@@ -90,5 +108,24 @@ FVector ASTrackerBot::GetNextPathPoint()
 	}
 
 	return GetActorLocation();
+}
+
+void ASTrackerBot::SelfDestruct()
+{
+	if(bExploded)
+	{
+		return;
+	}
+
+	bExploded = true;
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation());
+
+	TArray<AActor*> IgnoredActors;
+	IgnoredActors.Add(this);
+	UGameplayStatics::ApplyRadialDamage(this, ExplosionDamage, GetActorLocation(), ExplosionRadius, nullptr, IgnoredActors, this, GetInstigatorController(), true);
+
+	DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 2.f, 0, 1.f  );	
+	
+	Destroy();
 }
 
