@@ -8,10 +8,6 @@
 // Sets default values for this component's properties
 USHealthComponent::USHealthComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-
 	DefaultHealth = 100;
 
 	SetIsReplicated(true);
@@ -35,8 +31,14 @@ void USHealthComponent::BeginPlay()
 	Health = DefaultHealth;
 }
 
+void USHealthComponent::OnRep_Health(float OldHealth)
+{
+	float Damage = Health - OldHealth;
+	OnHealthChanged.Broadcast(this, Health, Damage, nullptr, nullptr, nullptr);
+}
+
 void USHealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
-	AController* InstigatedBy, AActor* DamageCauser)
+                                            AController* InstigatedBy, AActor* DamageCauser)
 {
 	if(Damage <= 0.f)
 	{
