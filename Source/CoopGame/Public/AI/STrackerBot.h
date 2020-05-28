@@ -43,12 +43,23 @@ protected:
 	USphereComponent* SphereComp;
 
 	UFUNCTION()
+	void OnCheckNearbyBots();
+
+	UFUNCTION()
 	void HandleTakeDamage(USHealthComponent* OwningHealtComp, float Health, float HealthDelta,
 		const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 	FVector GetNextPathPoint();
 
 	FVector NextPathPoint;
+
+	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
+    float BotCheckingRadius;
+
+	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
+    int32 MaxPowerLevel;
+
+	int32 CurrentPowerLevel;
 
 	UPROPERTY(EditDefaultsOnly, Category = "TrackerBot")
 	float MovementForce;

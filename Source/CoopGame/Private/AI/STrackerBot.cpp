@@ -23,6 +23,8 @@ ASTrackerBot::ASTrackerBot()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	SetReplicates(true);
+
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 	RootComponent = MeshComp;
 	MeshComp->SetCanEverAffectNavigation(false);
@@ -46,6 +48,9 @@ ASTrackerBot::ASTrackerBot()
 	ExplosionRadius = 300.f;
 	bStartedSelfDestruction = false;
 	SelfDamageInterval = 0.25f;
+	BotCheckingRadius = 600.f;
+	MaxPowerLevel = 4;
+	CurrentPowerLevel = 0;
 	
 }
 
@@ -58,6 +63,9 @@ void ASTrackerBot::BeginPlay()
 	if(GetLocalRole() == ROLE_Authority)
 	{
 		NextPathPoint = GetNextPathPoint();
+
+		FTimerHandle TimerHandle_CheckPowerLevel;
+		GetWorldTimerManager().SetTimer(TimerHandle_CheckPowerLevel, this, &ASTrackerBot::OnCheckNearbyBots, 1.f, true);
 	}
 	
 }
@@ -92,12 +100,54 @@ void ASTrackerBot::Tick(float DeltaTime)
 			DrawDebugDirectionalArrow(GetWorld(), GetActorLocation(), GetActorLocation() + ForceDirection, 32, FColor::Yellow, false, 0.f, 0, 1.f);
 		}
 
+		
+
 		DrawDebugSphere(GetWorld(), NextPathPoint, 20, 12, FColor::Yellow, false, 0.f, 1.f);
 	}
 }
 
+void ASTrackerBot::OnCheckNearbyBots()
+{
+	FCollisionShape CollShape;
+	CollShape.SetSphere(BotCheckingRadius);
+
+	FCollisionObjectQueryParams QueryParams;
+	QueryParams.AddObjectTypesToQuery(ECC_PhysicsBody);
+	QueryParams.AddObjectTypesToQuery(ECC_Pawn);
+
+	TArray<FOverlapResult> Overlaps;
+	GetWorld()->OverlapMultiByObjectType(Overlaps, GetActorLocation(), FQuat::Identity, QueryParams, CollShape);
+
+	DrawDebugSphere(GetWorld(), GetActorLocation(), BotCheckingRadius, 12, FColor::Green, false, 1.f);
+
+	int32 NrOfBots = 0;
+	for(FOverlapResult Result : Overlaps)
+	{
+		ASTrackerBot* Bot = Cast<ASTrackerBot>(Result.GetActor());
+		if(IsValid(Bot) && Bot != this)
+		{
+			NrOfBots++;
+		}
+	}
+
+	CurrentPowerLevel = FMath::Clamp(NrOfBots, 0 , MaxPowerLevel);
+
+	if(!IsValid(MatInst))
+	{
+		MatInst = MeshComp->CreateAndSetMaterialInstanceDynamicFromMaterial(0, MeshComp->GetMaterial(0));
+	}
+	if(IsValid(MatInst))
+	{
+		float Alpha = (float)CurrentPowerLevel / (float)MaxPowerLevel;
+
+		MatInst->SetScalarParameterValue("PowerLevelAlpha", Alpha);
+	}
+
+	DrawDebugString(GetWorld(), FVector(0,0,0), FString::FromInt(CurrentPowerLevel), this, FColor::White, 1.f, true);
+}
+
 void ASTrackerBot::HandleTakeDamage(USHealthComponent* OwningHealtComp, float Health, float HealthDelta,
-	const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+                                    const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
 	// Explode on Hitpoints == 0
 
@@ -123,11 +173,14 @@ FVector ASTrackerBot::GetNextPathPoint()
 {
 	ACharacter* PlayerPawn = UGameplayStatics::GetPlayerCharacter(this, 0);
 
-	UNavigationPath* NavPath = UNavigationSystemV1::FindPathToActorSynchronously(this, GetActorLocation(), PlayerPawn);
-	
-	if (NavPath->PathPoints.Num() > 1)
+	if(IsValid(PlayerPawn))
 	{
-		return NavPath->PathPoints[1];
+		UNavigationPath* NavPath = UNavigationSystemV1::FindPathToActorSynchronously(this, GetActorLocation(), PlayerPawn);
+
+		if (NavPath->PathPoints.Num() > 1)
+		{
+			return NavPath->PathPoints[1];
+		}
 	}
 
 	return GetActorLocation();
@@ -151,7 +204,10 @@ void ASTrackerBot::SelfDestruct()
 	{
 		TArray<AActor*> IgnoredActors;
 		IgnoredActors.Add(this);
-		UGameplayStatics::ApplyRadialDamage(this, ExplosionDamage, GetActorLocation(), ExplosionRadius, nullptr, IgnoredActors, this, GetInstigatorController(), true);
+
+		float ActualDamage = ExplosionDamage + (ExplosionDamage * CurrentPowerLevel);
+		
+		UGameplayStatics::ApplyRadialDamage(this, ActualDamage, GetActorLocation(), ExplosionRadius, nullptr, IgnoredActors, this, GetInstigatorController(), true);
 
 		DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 12, FColor::Red, false, 2.f, 0, 1.f  );	
 
