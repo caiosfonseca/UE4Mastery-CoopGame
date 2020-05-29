@@ -6,6 +6,10 @@
 #include "GameFramework/Actor.h"
 #include "SPowerUpActor.generated.h"
 
+class UStaticMeshComponent;
+class UPointLightComponent;
+
+
 UCLASS()
 class COOPGAME_API ASPowerUpActor : public AActor
 {
@@ -33,6 +37,12 @@ protected:
 	/* Time between the power up ticks */
 	UPROPERTY(EditDefaultsOnly, Category = "Powerups")
 	float PowerupInterval;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Components")
+    UStaticMeshComponent* MeshComp;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Components")
+    UPointLightComponent* LightComp;
 
 	/* Total times we apply the power up effect */
 	UPROPERTY(EditDefaultsOnly, Category = "Powerups")

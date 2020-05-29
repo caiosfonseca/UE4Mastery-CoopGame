@@ -31,7 +31,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UDecalComponent* DecalComp;
 
-	UPROPERTY(EditDefaultsOnly, Category = "PickupActor")
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "PickupActor")
 	TSubclassOf<ASPowerUpActor> PowerUpClass;
 
 	UFUNCTION()
@@ -39,8 +39,11 @@ protected:
 
 	ASPowerUpActor* PowerUpInstance;
 
-	UPROPERTY(EditDefaultsOnly, Category = "PickupActor")
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "PickupActor")
 	float CooldownDuration;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category = "PickupActor")
+	float ZOffset;
 	
 	FTimerHandle TimerHandle_RespawnCooldownTimer;
 	

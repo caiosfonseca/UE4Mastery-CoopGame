@@ -19,7 +19,8 @@ ASPickupActor::ASPickupActor()
 	DecalComp->SetupAttachment(RootComponent);
 	DecalComp->SetRelativeRotation(FRotator(90.f, 0.f, 0.f));
 	DecalComp->DecalSize = FVector(64.f, 75.f, 75.f);
-	
+
+	ZOffset = 20.f;	
 }
 
 void ASPickupActor::NotifyActorBeginOverlap(AActor* OtherActor)
@@ -54,6 +55,9 @@ void ASPickupActor::Respawn()
 	}
 	FActorSpawnParameters Spawnparams;
 	Spawnparams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	FTransform NewTransform = GetTransform();
+	NewTransform.SetLocation(NewTransform.GetLocation() + FVector(0.f, 0.f, ZOffset));
 	
-	PowerUpInstance = GetWorld()->SpawnActor<ASPowerUpActor>(PowerUpClass, GetTransform(), Spawnparams);
+	PowerUpInstance = GetWorld()->SpawnActor<ASPowerUpActor>(PowerUpClass, NewTransform, Spawnparams);
 }
