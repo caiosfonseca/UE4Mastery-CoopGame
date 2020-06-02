@@ -60,7 +60,7 @@ protected:
 	void BeginZoom();
 	void EndZoom();
 
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Weapon")
 	ASWeapon* CurrentWeapon;
 
 	void StartFire();

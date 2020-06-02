@@ -5,6 +5,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/PointLightComponent.h"
 #include "GameFramework/RotatingMovementComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 ASPowerUpActor::ASPowerUpActor()
@@ -24,13 +25,17 @@ ASPowerUpActor::ASPowerUpActor()
 	PowerupInterval = 0.f;
 	TotalNrOfTicks = 0;
 	TicksProcessed = 0;
+	bIsPowerupActive = false;
 
 	SetReplicates(true);
 }
 
-void ASPowerUpActor::ActivatePowerup()
+void ASPowerUpActor::ActivatePowerup(AActor* ActivateFor)
 {
-	OnActivated();
+	OnActivated(ActivateFor);
+
+	bIsPowerupActive = true;
+	OnRep_PowerupActive();
 	
 	if(PowerupInterval > 0.f)
 	{
@@ -52,6 +57,22 @@ void ASPowerUpActor::OnTickPowerup()
 	if(TicksProcessed >= TotalNrOfTicks)
 	{
 		OnExpired();
+
+		bIsPowerupActive = false;
+		OnRep_PowerupActive();
+		
 		GetWorldTimerManager().ClearTimer(TimerHandle_PowerUpTick);
 	}
+}
+
+void ASPowerUpActor::OnRep_PowerupActive()
+{
+	OnPowerupStateChanged(bIsPowerupActive);
+}
+
+void ASPowerUpActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASPowerUpActor, bIsPowerupActive);
 }

@@ -20,18 +20,20 @@ ASPickupActor::ASPickupActor()
 	DecalComp->SetRelativeRotation(FRotator(90.f, 0.f, 0.f));
 	DecalComp->DecalSize = FVector(64.f, 75.f, 75.f);
 
-	ZOffset = 20.f;	
+	ZOffset = 20.f;
+
+	SetReplicates(true);
 }
 
 void ASPickupActor::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 
-	if(IsValid(OtherActor->GetNetOwningPlayer()))
+	if(GetLocalRole() == ROLE_Authority)
 	{
-		if(IsValid(PowerUpInstance))
+		if(IsValid(PowerUpInstance) && IsValid(OtherActor->GetNetOwningPlayer()))
 		{
-			PowerUpInstance->ActivatePowerup();
+			PowerUpInstance->ActivatePowerup(OtherActor);
 			PowerUpInstance = nullptr;
 
 			// Set timer to respawn

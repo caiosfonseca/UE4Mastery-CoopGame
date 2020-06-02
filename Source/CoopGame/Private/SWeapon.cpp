@@ -46,6 +46,7 @@ ASWeapon::ASWeapon()
 	Recoil = 0.5f;
 
 	bIsReloading = false;
+	bShouldUseAmmo = true;
 
 	SetReplicates(true);
 
@@ -85,7 +86,10 @@ void ASWeapon::Fire()
 			return;
 		}
 
-		CurrentAmmo -= 1;
+		if(bShouldUseAmmo)
+		{
+			CurrentAmmo -= 1;
+		}
 		
 		FVector EyeLocation;
 		FRotator EyeRotation;
@@ -194,12 +198,12 @@ void ASWeapon::Reload()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Reloading"));
 		bIsReloading = true;
-		GetWorldTimerManager().SetTimer(TimerHandle_Reload, this, &ASWeapon::OnReload, ReloadTime, false, ReloadTime);
+		GetWorldTimerManager().SetTimer(TimerHandle_Reload, this, &ASWeapon::OnReloaded, ReloadTime, false, ReloadTime);
 	}
 	
 }
 
-void ASWeapon::OnReload()
+void ASWeapon::OnReloaded()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Reloaded"));
 	CurrentAmmo = MaxAmmo;
@@ -265,6 +269,11 @@ void ASWeapon::OnRep_HitScanTrace()
 	PlayFireEffects(HitScanTrace.TraceTo);
 
 	PlayImpactEfects(HitScanTrace.SurfaceType, HitScanTrace.TraceTo);
+}
+
+void ASWeapon::ChangeShouldUseAmmo(bool bNewValue)
+{
+	bShouldUseAmmo = bNewValue;
 }
 
 void ASWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

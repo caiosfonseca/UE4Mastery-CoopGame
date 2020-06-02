@@ -53,7 +53,7 @@ public:
     virtual void Reload();
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
-    virtual void OnReload();
+    virtual void OnReloaded();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
     int32 CurrentAmmo;
@@ -118,6 +118,8 @@ protected:
 
 	bool bIsReloading;
 
+	bool bShouldUseAmmo;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	float PitchSpreadAngle;
 	
@@ -126,4 +128,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
     float Recoil;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void ChangeShouldUseAmmo(bool bNewValue);
 };

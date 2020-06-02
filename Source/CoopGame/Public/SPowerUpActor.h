@@ -21,7 +21,7 @@ public:
 	ASPowerUpActor();
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "PowerUps")
-	void OnActivated();
+	void OnActivated(AActor* ActivateFor);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "PowerUps")
 	void OnExpired();
@@ -29,7 +29,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "PowerUps")
 	void OnPowerUpTicked();
 
-	void ActivatePowerup();
+	void ActivatePowerup(AActor* ActivateFor);
 
 protected:
 
@@ -56,5 +56,15 @@ protected:
 
 	UFUNCTION()
 	void OnTickPowerup();
+
+	// Keeps state of the powerup
+	UPROPERTY(ReplicatedUsing=OnRep_PowerupActive)
+	bool bIsPowerupActive;
+
+	UFUNCTION()
+	void OnRep_PowerupActive();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "PowerUps")
+	void OnPowerupStateChanged(bool bNewIsActive);
 
 };
