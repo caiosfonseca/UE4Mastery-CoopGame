@@ -27,14 +27,17 @@ void ASPickupActor::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 
-	if(IsValid(PowerUpInstance))
+	if(IsValid(OtherActor->GetNetOwningPlayer()))
 	{
-		PowerUpInstance->ActivatePowerup();
-		PowerUpInstance = nullptr;
+		if(IsValid(PowerUpInstance))
+		{
+			PowerUpInstance->ActivatePowerup();
+			PowerUpInstance = nullptr;
 
-		// Set timer to respawn
-		GetWorldTimerManager().SetTimer(TimerHandle_RespawnCooldownTimer, this, &ASPickupActor::Respawn,
-			CooldownDuration);
+			// Set timer to respawn
+			GetWorldTimerManager().SetTimer(TimerHandle_RespawnCooldownTimer, this, &ASPickupActor::Respawn,
+                CooldownDuration);
+		}
 	}
 }
 
@@ -42,8 +45,11 @@ void ASPickupActor::NotifyActorBeginOverlap(AActor* OtherActor)
 void ASPickupActor::BeginPlay()
 {
 	Super::BeginPlay();
-
-	Respawn();
+	
+	if(GetLocalRole() == ROLE_Authority)
+	{
+		Respawn();
+	}
 }
 
 void ASPickupActor::Respawn()

@@ -4,6 +4,7 @@
 #include "SPowerUpActor.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/PointLightComponent.h"
+#include "GameFramework/RotatingMovementComponent.h"
 
 // Sets default values
 ASPowerUpActor::ASPowerUpActor()
@@ -17,10 +18,14 @@ ASPowerUpActor::ASPowerUpActor()
 	LightComp->SetupAttachment(RootComponent);
 	LightComp->SetCastShadows(false);
 	LightComp->SetAttenuationRadius(200.f);
+
+	RotatingMovementComp = CreateDefaultSubobject<URotatingMovementComponent>(TEXT("RotatingMovementComp"));
 	
 	PowerupInterval = 0.f;
 	TotalNrOfTicks = 0;
 	TicksProcessed = 0;
+
+	SetReplicates(true);
 }
 
 void ASPowerUpActor::ActivatePowerup()
@@ -36,12 +41,6 @@ void ASPowerUpActor::ActivatePowerup()
 	{
 		OnTickPowerup();
 	}
-}
-
-// Called when the game starts or when spawned
-void ASPowerUpActor::BeginPlay()
-{
-	Super::BeginPlay();
 }
 
 void ASPowerUpActor::OnTickPowerup()

@@ -8,6 +8,7 @@
 
 class UStaticMeshComponent;
 class UPointLightComponent;
+class URotatingMovementComponent;
 
 
 UCLASS()
@@ -31,8 +32,6 @@ public:
 	void ActivatePowerup();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
 
 	/* Time between the power up ticks */
 	UPROPERTY(EditDefaultsOnly, Category = "Powerups")
@@ -43,6 +42,9 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Components")
     UPointLightComponent* LightComp;
+    
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Components")
+    URotatingMovementComponent* RotatingMovementComp;
 
 	/* Total times we apply the power up effect */
 	UPROPERTY(EditDefaultsOnly, Category = "Powerups")
