@@ -5,6 +5,7 @@
 #include "SCharacter.h"
 #include "TimerManager.h"
 #include "Components/SHealthComponent.h"
+#include "GameFramework/PlayerController.h"
 
 ASGameMode::ASGameMode()
 {
@@ -28,6 +29,8 @@ void ASGameMode::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
     CheckWaveState();
+
+    CheckAnyPlayerAlive();
 }
 
 void ASGameMode::SpawnBotTimerElapsed()
@@ -90,4 +93,34 @@ void ASGameMode::CheckWaveState()
     {
         PrepareForNextWave();
     }
+}
+
+void ASGameMode::CheckAnyPlayerAlive()
+{
+    for(FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; It++)
+    {
+        APlayerController* PC = It->Get();
+        if(IsValid(PC) && PC->GetPawn())
+        {
+            APawn* MyPawn = PC->GetPawn();
+            USHealthComponent* HealthComp = Cast<USHealthComponent>(MyPawn->GetComponentByClass(USHealthComponent::StaticClass()));
+            if(ensure(IsValid(HealthComp)) && HealthComp->GetHealth() > 0.f)
+            {
+                // A Player is still alive
+                return;
+            }
+        }
+    }
+
+    //No player alive
+    GameOver();
+}
+
+void ASGameMode::GameOver()
+{    
+    EndWave();
+
+    // TODO finish up the match, preset "game over" to players.
+
+    UE_LOG(LogTemp, Log, TEXT("Game OVER ! Players died"));
 }
