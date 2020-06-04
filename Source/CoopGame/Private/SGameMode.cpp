@@ -3,6 +3,7 @@
 
 #include "SGameMode.h"
 #include "SCharacter.h"
+#include "SGameState.h"
 #include "TimerManager.h"
 #include "Components/SHealthComponent.h"
 #include "GameFramework/PlayerController.h"
@@ -10,6 +11,8 @@
 ASGameMode::ASGameMode()
 {
     DefaultPawnClass = ASCharacter::StaticClass();
+    GameStateClass = ASGameState::StaticClass();
+    
     WaveCount = 0;
     TimeBetweenWaves = 2.f;
 
@@ -123,4 +126,13 @@ void ASGameMode::GameOver()
     // TODO finish up the match, preset "game over" to players.
 
     UE_LOG(LogTemp, Log, TEXT("Game OVER ! Players died"));
+}
+
+void ASGameMode::SetWaveState(EWaveState NewState)
+{
+    ASGameState* GS = GetGameState<ASGameState>();
+    if(ensure(IsValid(GS)))
+    {
+        GS->WaveState = NewState;
+    }
 }
