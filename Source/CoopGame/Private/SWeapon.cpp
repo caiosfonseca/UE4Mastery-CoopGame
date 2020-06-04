@@ -151,7 +151,10 @@ void ASWeapon::Fire()
 		
 		LastTimeFired = GetWorld()->TimeSeconds;
 
-		Cast<APlayerController>(MyOwner->GetInstigatorController())->AddPitchInput(-Recoil);
+		if(IsValid(MyOwner))
+		{
+			Cast<APlayerController>(MyOwner->GetInstigatorController())->AddPitchInput(-Recoil);
+		}
 		
 	}
 }
