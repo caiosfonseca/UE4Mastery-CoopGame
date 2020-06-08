@@ -69,6 +69,8 @@ void ASGameMode::EndWave()
 
 void ASGameMode::PrepareForNextWave()
 {
+    RestartDeadPlayers();
+    
     GetWorldTimerManager().SetTimer(TimerHandle_NextWaveStart, this, &ASGameMode::StartWave, TimeBetweenWaves, false);
     SetWaveState(EWaveState::WaitingToStart);
 }
@@ -146,5 +148,17 @@ void ASGameMode::SetWaveState(EWaveState NewState)
     if(ensure(IsValid(GS)))
     {
         GS->SetWaveState(NewState);
+    }
+}
+
+void ASGameMode::RestartDeadPlayers()
+{
+    TActorIterator<APlayerController> PCIt = TActorIterator<APlayerController>(GetWorld());
+    for(; PCIt; ++PCIt)
+    {
+        if(IsValid(*PCIt) && !IsValid((*PCIt)->GetPawn()))
+        {
+            RestartPlayer(*PCIt);
+        }
     }
 }
