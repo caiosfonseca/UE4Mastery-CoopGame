@@ -30,11 +30,14 @@ class COOPGAME_API ASGameState : public AGameStateBase
 	GENERATED_BODY()
 
 public:
-
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_WaveState, Category = "GameState")
-	EWaveState WaveState;
+	UFUNCTION()
+	void SetWaveState(EWaveState NewState);
+	
 
 protected:
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_WaveState, Category = "GameState")
+    EWaveState WaveState;
+	
 	UFUNCTION()
 	void OnRep_WaveState(EWaveState OldState);
 
