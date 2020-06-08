@@ -4,14 +4,17 @@
 #include "SGameMode.h"
 #include "SCharacter.h"
 #include "SGameState.h"
+#include "SPlayerState.h"
 #include "TimerManager.h"
 #include "Components/SHealthComponent.h"
 #include "GameFramework/PlayerController.h"
+#include "EngineUtils.h"
 
 ASGameMode::ASGameMode()
 {
     DefaultPawnClass = ASCharacter::StaticClass();
     GameStateClass = ASGameState::StaticClass();
+    PlayerStateClass = ASPlayerState::StaticClass();
     
     WaveCount = 0;
     TimeBetweenWaves = 2.f;
@@ -80,10 +83,10 @@ void ASGameMode::CheckWaveState()
     }
     
     bool bIsAnyBotAlive = false;
-    
-    for(FConstPawnIterator It = GetWorld()->GetPawnIterator(); It; ++It)
+    TActorIterator<APawn> PawnIt = TActorIterator<APawn>(GetWorld());
+    for(; PawnIt; ++PawnIt)
     {
-        APawn* TestPawn = It->Get();
+        APawn* TestPawn = *PawnIt;
         if(!IsValid(TestPawn) || TestPawn->IsPlayerControlled())
         {
             continue;
