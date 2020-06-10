@@ -40,8 +40,7 @@ ASWeapon::ASWeapon()
 	MaxAmmo = 30;
 	CurrentAmmo = 30;
 
-	PitchSpreadAngle = 1.25f;
-	YawSpreadAngle = 1.25f;
+	BulletSpread = 1.25f;
 
 	Recoil = 0.5f;
 
@@ -97,12 +96,10 @@ void ASWeapon::Fire()
 
 		FVector ShotDirection = EyeRotation.Vector();
 
-		float RandomYaw = FMath::FRandRange(-YawSpreadAngle, YawSpreadAngle);
-		float RandomPitch = FMath::FRandRange(-PitchSpreadAngle, PitchSpreadAngle);
-
-		FRotator SpreadRot = FRotator(RandomPitch, RandomYaw, 0.f);
+		float HalfRad = FMath::DegreesToRadians(BulletSpread);
+		ShotDirection = FMath::VRandCone(ShotDirection, HalfRad, HalfRad);
 		
-		FVector TraceEnd = SpreadRot.RotateVector(EyeLocation + ShotDirection * 10000);
+		FVector TraceEnd = EyeLocation + ShotDirection * 10000;
 		
 
 		// Particle Target parameter
@@ -153,7 +150,12 @@ void ASWeapon::Fire()
 
 		if(IsValid(MyOwner))
 		{
-			Cast<APlayerController>(MyOwner->GetInstigatorController())->AddPitchInput(-Recoil);
+			APlayerController* PC = Cast<APlayerController>(MyOwner->GetInstigatorController());
+			if(IsValid(PC))
+			{
+				PC->AddPitchInput(-Recoil);
+			}
+			
 		}
 		
 	}

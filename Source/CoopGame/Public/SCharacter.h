@@ -28,6 +28,12 @@ public:
 
 	virtual FVector GetPawnViewLocation() const override;
 
+	UFUNCTION(BlueprintCallable, Category = "Player")
+    void StartFire();
+
+	UFUNCTION(BlueprintCallable, Category = "Player")
+    void StopFire();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -63,8 +69,6 @@ protected:
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Weapon")
 	ASWeapon* CurrentWeapon;
 
-	void StartFire();
-	void StopFire();
 	void Reload();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Player")

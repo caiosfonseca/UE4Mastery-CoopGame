@@ -120,12 +120,11 @@ protected:
 
 	bool bShouldUseAmmo;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	float PitchSpreadAngle;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	float YawSpreadAngle;
+	/* Bullet spread in degrees */
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon", meta = (ClampMin=0.0f))
+	float BulletSpread;
 
+	/* Bullet spread in degrees */
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
     float Recoil;
 
