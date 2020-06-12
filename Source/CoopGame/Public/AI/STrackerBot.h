@@ -30,6 +30,8 @@ protected:
 	virtual void BeginPlay() override;
 
 	FTimerHandle TimerHandle_SelfDamage;
+	
+	FTimerHandle TimerHandle_RefreshPath;
 
 	void DamageSelf();
 
@@ -50,6 +52,8 @@ protected:
 		const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 
 	FVector GetNextPathPoint();
+
+	void RefreshPath();
 
 	FVector NextPathPoint;
 
