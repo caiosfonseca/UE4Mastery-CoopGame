@@ -45,7 +45,7 @@ bool USHealthComponent::IsFriendly(AActor* ActorA, AActor* ActorB)
 	}
 	
 	USHealthComponent* HealthCompA = Cast<USHealthComponent>(ActorA->GetComponentByClass(USHealthComponent::StaticClass()));
-	USHealthComponent* HealthCompB = Cast<USHealthComponent>(ActorA->GetComponentByClass(USHealthComponent::StaticClass()));
+	USHealthComponent* HealthCompB = Cast<USHealthComponent>(ActorB->GetComponentByClass(USHealthComponent::StaticClass()));
 
 	if(!IsValid(HealthCompA) || !IsValid(HealthCompB))
 	{
